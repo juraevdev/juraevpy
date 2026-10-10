@@ -121,7 +121,7 @@ export function TgaiVisual({ ratio }: { ratio?: VisualRatio }) {
           <span className="text-[#666]">›</span>
           <span className="truncate">
             drafting outreach for <span className="text-[#f5f5f5]">@saas_founders_uk</span> · tool:
-            get_prospect_context
+            create_draft → awaiting approval
           </span>
           <span className="ml-auto h-3 w-px bg-[#f5f5f5] animate-pulse-dot" />
         </motion.div>
