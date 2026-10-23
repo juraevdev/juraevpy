@@ -17,7 +17,7 @@ const tags = {
 
 type RevealTextProps = {
   /** Explicit lines — line breaks are a design decision, not a browser decision. */
-  lines: readonly string[];
+  lines: readonly React.ReactNode[];
   as?: Tag;
   className?: string;
   lineClassName?: string;
@@ -30,7 +30,7 @@ type RevealTextProps = {
 };
 
 /**
- * Headline reveal: each line rises from behind a clipping mask.
+ * Headline reveal: each line fades in with a slight rise, lightly staggered.
  */
 export function RevealText({
   lines,
@@ -38,7 +38,7 @@ export function RevealText({
   className,
   lineClassName,
   delay = 0,
-  stagger = 0.09,
+  stagger = 0.06,
   trigger = "view",
   maskPadding = 0.08,
   id,
@@ -57,7 +57,7 @@ export function RevealText({
     >
       {lines.map((line, i) => (
         <span
-          key={`${i}-${line}`}
+          key={i}
           className="block overflow-hidden"
           style={{ paddingBottom: `${maskPadding}em`, marginBottom: `-${maskPadding}em` }}
         >

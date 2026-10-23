@@ -3,26 +3,29 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
-import { useLenis } from "lenis/react";
+import { AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT_QUART } from "@/lib/motion";
 import { navLinks, sectionIds } from "@/data/nav";
 import { site } from "@/data/site";
-import { useActiveSection, useHeaderTheme } from "@/hooks/useActiveSection";
-import { StatusIndicator } from "@/components/ui/StatusIndicator";
+import { useActiveSection } from "@/hooks/useActiveSection";
+import { useLocale } from "@/hooks/useLocale";
+import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { MobileMenu } from "./MobileMenu";
 import { MenuToggle } from "./MenuToggle";
 
+const leftLinks = navLinks.filter((l) => l.id !== "contact");
+const rightLinks = navLinks.filter((l) => l.id === "contact");
+
 export function Navbar() {
   const pathname = usePathname();
-  const lenis = useLenis();
   const isHome = pathname === "/";
+  const { t, locale } = useLocale();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const theme = useHeaderTheme();
   const active = useActiveSection(sectionIds);
+
+  const navLabel = (id: (typeof navLinks)[number]["id"]) => t.nav[id];
 
   // Close the menu when the route changes (derived-state reset during render).
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -38,12 +41,20 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock scroll while the menu is open; close it on route change.
   useEffect(() => {
-    if (!lenis) return;
-    if (menuOpen) lenis.stop();
-    else lenis.start();
-  }, [menuOpen, lenis]);
+    document.documentElement.lang = locale;
+  }, [locale]);
+
+  // Lock page scroll while the menu is open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = previous;
+    };
+  }, [menuOpen]);
 
   const handleAnchor = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -55,90 +66,76 @@ export function Navbar() {
       setMenuOpen(false);
       // Give the menu overlay a beat to start closing before the page moves.
       window.setTimeout(() => {
-        if (lenis) lenis.scrollTo(el, { duration: 1.5, force: true });
-        else el.scrollIntoView({ behavior: "smooth" });
+        el.scrollIntoView();
         window.history.replaceState(null, "", `#${hash}`);
       }, menuOpen ? 250 : 0);
     },
-    [isHome, lenis, menuOpen],
+    [isHome, menuOpen],
   );
 
-  const light = theme === "light" && !menuOpen;
+  const renderLink = (link: (typeof navLinks)[number]) => {
+    const isActive = isHome && active === link.id;
+    return (
+      <Link
+        href={link.href}
+        onClick={(e) => handleAnchor(e, link.href)}
+        aria-current={isActive ? "true" : undefined}
+        className={cn(
+          "eyebrow py-3 transition-colors duration-300",
+          isActive ? "text-fg" : "text-muted hover:text-fg",
+        )}
+      >
+        {navLabel(link.id)}
+      </Link>
+    );
+  };
 
   return (
     <>
-      <motion.header
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.25, ease: EASE_OUT_QUART }}
+      <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,color] duration-500",
-          light && "theme-light",
+          "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300",
           scrolled && !menuOpen
-            ? "border-b border-line bg-bg/70 backdrop-blur-md"
+            ? "border-b border-line bg-bg/80 backdrop-blur-md"
             : "border-b border-transparent bg-transparent",
         )}
       >
         <nav
-          aria-label="Primary"
-          className="mx-auto flex h-nav w-full max-w-[120rem] items-center justify-between px-gutter"
+          aria-label={t.nav.primary}
+          className="mx-auto grid h-nav w-full max-w-page grid-cols-[1fr_auto_1fr] items-center px-gutter"
         >
-          <div className="flex items-center gap-8">
-            <Link
-              href="/"
-              className="label text-fg"
-              aria-label={`${site.name} — home`}
-              onClick={(e) => {
-                if (!isHome) return;
-                e.preventDefault();
-                setMenuOpen(false);
-                if (lenis) lenis.scrollTo(0, { duration: 1.5, force: true });
-                else window.scrollTo({ top: 0, behavior: "smooth" });
-                window.history.replaceState(null, "", "/");
-              }}
-            >
-              {site.firstName} {site.lastName}
-            </Link>
-            <StatusIndicator className="hidden xl:flex" showTime={false} />
-          </div>
-
-          <ul className="hidden items-center gap-8 md:flex">
-            {navLinks.map((link) => {
-              const isActive = isHome && active === link.id;
-              return (
-                <li key={link.id}>
-                  <Link
-                    href={link.href}
-                    onClick={(e) => handleAnchor(e, link.href)}
-                    data-active={isActive}
-                    className={cn(
-                      "label link-underline py-2 transition-colors duration-300",
-                      isActive ? "text-fg" : "text-muted hover:text-fg",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            })}
+          <ul className="hidden items-center gap-10 md:flex">
+            {leftLinks.map((link) => (
+              <li key={link.id}>{renderLink(link)}</li>
+            ))}
           </ul>
 
-          <div className="flex items-center gap-6">
-            <Link
-              href="/#contact"
-              onClick={(e) => handleAnchor(e, "/#contact")}
-              data-cursor="button"
-              className="group hidden h-10 items-center gap-3 rounded-[2px] border border-line-strong px-4 label text-fg transition-colors duration-500 hover:border-fg sm:inline-flex"
-            >
-              Let&apos;s talk
-              <span aria-hidden className="arrow-shift inline-block">
-                →
-              </span>
-            </Link>
+          <Link
+            href="/"
+            className="wordmark col-start-2 py-3 text-fg"
+            aria-label={`${site.name} — home`}
+            onClick={(e) => {
+              if (!isHome) return;
+              e.preventDefault();
+              setMenuOpen(false);
+              window.scrollTo({ top: 0 });
+              window.history.replaceState(null, "", "/");
+            }}
+          >
+            {site.name}
+          </Link>
+
+          <div className="flex items-center justify-end gap-3 md:gap-8">
+            <LocaleToggle />
+            <ul className="hidden items-center gap-10 md:flex">
+              {rightLinks.map((link) => (
+                <li key={link.id}>{renderLink(link)}</li>
+              ))}
+            </ul>
             <MenuToggle open={menuOpen} onToggle={() => setMenuOpen((v) => !v)} />
           </div>
         </nav>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {menuOpen && (

@@ -1,131 +1,147 @@
 "use client";
 
-import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { VisualFrame, Bar, type VisualRatio } from "./VisualFrame";
+import type { TgaiLocale } from "@/data/tgai";
+import { tgaiCopy } from "@/data/tgai";
+import { VisualFrame, type VisualRatio } from "./VisualFrame";
 
-const CHANNELS = [
-  { name: "saas_founders_uk", score: 0.94, admin: true },
-  { name: "startup_ops_eu", score: 0.89, admin: true },
-  { name: "devtools_growth", score: 0.83, admin: false },
-  { name: "b2b_marketing", score: 0.77, admin: true },
-  { name: "fintech_builders", score: 0.71, admin: false },
-  { name: "product_people", score: 0.64, admin: true },
-];
+type DemoPhase = "waiting" | "sent" | "rejected";
 
-const COLUMNS: { name: string; cards: { admin?: boolean; tag?: string }[] }[] = [
-  { name: "Discovered", cards: [{ admin: true }, { admin: true }, {}, { admin: true }] },
-  { name: "Qualified", cards: [{ admin: true, tag: "draft" }, { admin: true }, { admin: true }] },
-  { name: "Contacted", cards: [{ admin: true, tag: "sent" }, { admin: true, tag: "sent" }] },
-  { name: "Replied", cards: [{ admin: true, tag: "reply" }] },
-];
-
-const item = {
-  hidden: { opacity: 0, y: 6 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] as const } },
+type TgaiVisualProps = {
+  locale: TgaiLocale;
+  ratio?: VisualRatio;
+  className?: string;
 };
 
-/** Outreach CRM: ranked channels on the left, pipeline on the right, AI draft strip below. */
-export function TgaiVisual({ ratio }: { ratio?: VisualRatio }) {
-  return (
-    <VisualFrame title="tgai.profile / pipeline" meta="campaign 04 · live" ratio={ratio}>
-      <motion.div
-        className="flex h-full flex-col"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-10% 0px" }}
-        variants={{ visible: { transition: { staggerChildren: 0.05, delayChildren: 0.2 } } }}
-      >
-        <div className="flex min-h-0 flex-1">
-          {/* Ranked channels */}
-          <div className="flex w-full flex-col p-3 @md:w-[42%] @md:border-r @md:border-white/10 lg:p-4">
-            <div className="mb-3 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.14em] text-[#666]">
-              <span>Channels · ranked</span>
-              <span>score</span>
-            </div>
-            <ul className="flex flex-1 flex-col gap-3 lg:gap-3.5">
-              {CHANNELS.map((c, i) => (
-                <motion.li key={c.name} variants={item} className="group/row">
-                  <div className="flex items-center justify-between font-mono text-[9px] tracking-wide">
-                    <span className="flex items-center gap-2 truncate text-[#d4d4d4]">
-                      <span className="text-[#666]">0{i + 1}</span>
-                      <span className="truncate">@{c.name}</span>
-                    </span>
-                    <span className="tabular-nums text-[#a0a0a0]">{c.score.toFixed(2)}</span>
-                  </div>
-                  <div className="mt-1.5 h-px w-full bg-white/10">
-                    <div
-                      className="h-px bg-[#f5f5f5]/70"
-                      style={{ width: `${c.score * 100}%` }}
-                    />
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
+/**
+ * Interactive illustration of the approval gate.
+ * Approve → Sent animation; Reject → reset. No network calls.
+ */
+export function TgaiVisual({ locale, ratio = "auto", className }: TgaiVisualProps) {
+  const t = tgaiCopy[locale];
+  const [phase, setPhase] = useState<DemoPhase>("waiting");
 
-          {/* Pipeline */}
-          <div className="hidden min-w-0 flex-1 gap-2 p-3 @md:flex lg:gap-3 lg:p-4">
-            {COLUMNS.map((col) => (
-              <div key={col.name} className="flex min-w-0 flex-1 flex-col">
-                <div className="mb-2 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.14em] text-[#666]">
-                  <span className="truncate">{col.name}</span>
-                  <span>{col.cards.length}</span>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {col.cards.map((card, i) => (
-                    <motion.div
-                      key={i}
-                      variants={item}
-                      className={cn(
-                        "rounded-[2px] border border-white/10 bg-white/[0.03] p-2",
-                        card.tag === "reply" && "border-white/40 bg-white/[0.06]",
-                      )}
-                    >
-                      <Bar w="70%" />
-                      <Bar w="45%" className="mt-1.5 bg-white/10" />
-                      <div className="mt-2 flex items-center justify-between">
-                        {card.admin ? (
-                          <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-[#a0a0a0]">
-                            admin
-                          </span>
-                        ) : (
-                          <span />
-                        )}
-                        {card.tag ? (
-                          <span
-                            className={cn(
-                              "rounded-[1px] px-1 font-mono text-[7px] uppercase tracking-[0.12em]",
-                              card.tag === "reply"
-                                ? "bg-[#f5f5f5] text-[#0a0a0a]"
-                                : "border border-white/20 text-[#a0a0a0]",
-                            )}
-                          >
-                            {card.tag}
-                          </span>
-                        ) : null}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+  useEffect(() => {
+    if (phase !== "rejected") return;
+    const id = window.setTimeout(() => setPhase("waiting"), 900);
+    return () => window.clearTimeout(id);
+  }, [phase]);
+
+  const steps = [
+    { id: "found", label: t.steps.found, active: true, dominant: false },
+    { id: "drafted", label: t.steps.drafted, active: phase !== "rejected", dominant: false },
+    {
+      id: "needsOk",
+      label: t.steps.needsOk,
+      active: phase === "waiting",
+      dominant: phase === "waiting",
+    },
+    {
+      id: "sent",
+      label: t.steps.sent,
+      active: phase === "sent",
+      dominant: phase === "sent",
+    },
+  ] as const;
+
+  return (
+    <VisualFrame
+      title={t.frameTitle}
+      meta={phase === "sent" ? t.sentMeta : t.waitingMeta}
+      ratio={ratio}
+      className={className}
+      decorative={false}
+    >
+      <div className="flex flex-col gap-4 p-4 sm:p-5 md:gap-5 md:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <p className="max-w-[85%] rounded-2xl rounded-tl-sm border border-line bg-bg px-3.5 py-2.5 text-[0.8125rem] leading-snug text-fg sm:text-sm">
+            {t.operator}
+          </p>
+          <span className="shrink-0 pt-1 text-micro font-medium uppercase tracking-[0.14em] text-muted">
+            {t.demoLabel}
+          </span>
         </div>
 
-        {/* AI draft strip */}
-        <motion.div
-          variants={item}
-          className="flex h-8 shrink-0 items-center gap-3 border-t border-white/10 px-3 font-mono text-[9px] text-[#a0a0a0] lg:px-4"
-        >
-          <span className="text-[#666]">›</span>
-          <span className="truncate">
-            drafting outreach for <span className="text-[#f5f5f5]">@saas_founders_uk</span> · tool:
-            create_draft → awaiting approval
-          </span>
-          <span className="ml-auto h-3 w-px bg-[#f5f5f5] animate-pulse-dot" />
-        </motion.div>
-      </motion.div>
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          {steps.map((step, i) => (
+            <li key={step.id} className="inline-flex items-center gap-2">
+              {i > 0 ? (
+                <span className="text-muted" aria-hidden>
+                  →
+                </span>
+              ) : null}
+              <span
+                className={cn(
+                  "text-micro transition-colors duration-300",
+                  step.dominant &&
+                    "text-[0.8125rem] font-semibold text-accent animate-soft-pulse",
+                  !step.dominant && step.active && "font-medium text-fg",
+                  !step.active && "text-muted",
+                )}
+              >
+                {step.label}
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        <div>
+          <p className="text-micro text-muted">
+            {t.draftTo}:{" "}
+            <span className="text-fg">
+              {t.recipientName},{" "}
+              <span className="font-mono">{t.recipientHandle}</span>
+            </span>
+          </p>
+          <div
+            className={cn(
+              "mt-2.5 rounded-lg border border-line bg-bg px-4 py-3.5 transition-opacity duration-300 md:px-5 md:py-4",
+              phase === "sent" && "opacity-70",
+            )}
+          >
+            <p className="text-[0.8125rem] leading-relaxed text-fg sm:text-sm">{t.draft}</p>
+          </div>
+          <p className="mt-2.5 text-micro text-muted" aria-live="polite">
+            {phase === "sent"
+              ? t.sentConfirm
+              : phase === "rejected"
+                ? t.rejectedCaption
+                : t.caption}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {phase === "sent" ? (
+            <button
+              type="button"
+              onClick={() => setPhase("waiting")}
+              className="inline-flex h-11 items-center justify-center rounded-[2px] border border-line-strong px-4 text-micro font-medium text-fg transition-colors duration-200 hover:border-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            >
+              {t.tryAgain}
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setPhase("sent")}
+                disabled={phase === "rejected"}
+                className="inline-flex h-11 min-w-[7rem] items-center justify-center rounded-[2px] bg-fg px-4 text-micro font-medium text-bg transition-colors duration-200 hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:opacity-50"
+              >
+                {t.approve}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhase("rejected")}
+                disabled={phase === "rejected"}
+                className="inline-flex h-11 min-w-[5.5rem] items-center justify-center rounded-[2px] border border-line-strong px-4 text-micro font-medium text-fg transition-colors duration-200 hover:border-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:opacity-50"
+              >
+                {t.reject}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </VisualFrame>
   );
 }

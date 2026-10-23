@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import type { Project } from "@/data/projects";
-import { useTransitionLink } from "@/components/PageTransition";
+import { joinDot } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 import { Container } from "@/components/ui/Container";
-import { Label } from "@/components/ui/Label";
+import { SectionTitle } from "@/components/ui/SectionTitle";
+import { Chapter } from "@/components/ui/Chapter";
 import { ArrowRight } from "@/components/ui/Icons";
 import { FadeIn } from "@/components/motion/FadeIn";
-import { RevealText } from "@/components/motion/RevealText";
-import { LineReveal } from "@/components/motion/LineReveal";
 import { ProjectVisual } from "./ProjectVisual";
-import { CaseStudyGrid } from "./CaseStudyGrid";
 import { CaseStudyPipeline } from "./CaseStudyPipeline";
 
 type ProjectCaseStudyProps = {
@@ -18,135 +17,133 @@ type ProjectCaseStudyProps = {
   next: Project;
 };
 
-/** Dedicated case-study page: statement, visual, PROBLEM / SYSTEM / ENGINEERING / RESULT, flow, next. */
+const prose = "max-w-measure text-[1.0625rem] leading-[1.7] text-fg";
+
+function localizedProjectMeta(project: Project, t: ReturnType<typeof useLocale>["t"]) {
+  if (project.slug === "caravan-dispatcher") {
+    return { title: t.caravan.title, category: t.caravan.category, summary: t.caravan.tagline };
+  }
+  if (project.slug === "e-makon") {
+    return { title: t.emakon.title, category: t.emakon.category, summary: t.emakon.tagline };
+  }
+  if (project.slug === "ai-super-app") {
+    return { title: t.superapp.title, category: t.superapp.category, summary: t.superapp.tagline };
+  }
+  return { title: project.title, category: project.category, summary: project.summary };
+}
+
+/** Case-study page: title, plate, Problem / System / Engineering / Result, flow, next. */
 export function ProjectCaseStudy({ project, next }: ProjectCaseStudyProps) {
-  const go = useTransitionLink();
-  const nextHref = `/work/${next.slug}`;
+  const { t } = useLocale();
+  const local = localizedProjectMeta(project, t);
+  const nextLocal = localizedProjectMeta(next, t);
+
+  const meta = [
+    { label: t.common.roleLabel, value: project.role },
+    { label: t.common.periodLabel, value: project.year },
+    { label: t.common.typeLabel, value: project.type },
+  ];
 
   return (
     <>
-      <section
-        data-theme="dark"
-        className="surface-dark"
-        aria-labelledby="project-title"
-      >
-        <Container className="pt-[calc(var(--nav-h)+2.5rem)] @container lg:pt-[calc(var(--nav-h)+4rem)]">
-          <FadeIn trigger="mount" delay={0.2} y={8}>
-            <Link
-              href="/#work"
-              className="group inline-flex items-center gap-3 label text-muted transition-colors hover:text-fg"
-            >
-              <ArrowRight className="rotate-180 text-[0.9em] transition-transform duration-500 ease-out-expo group-hover:-translate-x-1" />
-              <span className="link-underline">Selected work</span>
-            </Link>
-          </FadeIn>
+      <section className="surface" aria-labelledby="project-title">
+        <Container className="max-w-page pt-[calc(var(--nav-h)+2rem)]">
+          <Link
+            href="/#work"
+            className="group -my-3 inline-flex items-center gap-2 py-3 eyebrow text-muted transition-colors hover:text-fg"
+          >
+            <ArrowRight className="rotate-180 text-[1.1em] transition-transform duration-300 ease-out-quart group-hover:-translate-x-1" />
+            <span>{t.common.selectedWork}</span>
+          </Link>
 
-          <div className="mt-12 flex items-center gap-5 sm:gap-8 lg:mt-16">
-            <FadeIn trigger="mount" delay={0.3} y={8} className="flex shrink-0 items-center gap-3">
-              <Label tone="fg">{project.index}</Label>
-              <Label>— {project.category}</Label>
-            </FadeIn>
-            <LineReveal trigger="mount" delay={0.4} className="flex-1" />
-          </div>
+          <div className="@container mx-auto mt-14 max-w-[56rem] text-center lg:mt-20">
+            <p className="eyebrow text-muted">{local.category}</p>
+            <h1 id="project-title" className="mt-6 text-display-xl lg:mt-8">
+              {local.title}
+            </h1>
+            <p className="mx-auto mt-8 max-w-measure text-lede text-muted lg:mt-10">
+              {local.summary}
+            </p>
 
-          <RevealText
-            as="h1"
-            id="project-title"
-            trigger="mount"
-            delay={0.4}
-            lines={project.titleLines}
-            className="mt-8 text-display-xl uppercase lg:mt-12"
-          />
-
-          <div className="mt-12 grid grid-cols-12 gap-x-6 gap-y-10 lg:mt-16">
-            <FadeIn
-              as="p"
-              trigger="mount"
-              delay={0.85}
-              className="col-span-12 max-w-2xl text-lede text-muted lg:col-span-6"
-            >
-              {project.summary}
-            </FadeIn>
-            <FadeIn trigger="mount" delay={0.95} className="col-span-12 lg:col-span-5 lg:col-start-8">
-              <dl className="grid grid-cols-2 gap-6 border-t border-line pt-6 text-sm sm:grid-cols-3">
-                <div>
-                  <dt className="label text-muted-2">Role</dt>
-                  <dd className="mt-2 text-fg">{project.role}</dd>
+            <dl className="mx-auto mt-12 grid max-w-[44rem] gap-y-5 border-y border-line py-6 text-sm sm:grid-cols-3 lg:mt-14">
+              {meta.map((m) => (
+                <div key={m.label}>
+                  <dt className="eyebrow text-muted">{m.label}</dt>
+                  <dd className="mt-2 text-fg">{m.value}</dd>
                 </div>
-                <div>
-                  <dt className="label text-muted-2">Period</dt>
-                  <dd className="mt-2 text-fg">{project.year}</dd>
-                </div>
-                <div>
-                  <dt className="label text-muted-2">Type</dt>
-                  <dd className="mt-2 text-fg">{project.type}</dd>
-                </div>
-              </dl>
-            </FadeIn>
+              ))}
+            </dl>
           </div>
         </Container>
 
-        <Container className="mt-16 lg:mt-24">
-          <FadeIn trigger="mount" delay={1.05} y={40}>
-            <ProjectVisual kind={project.visual} ratio="wide" />
-          </FadeIn>
+        <Container className="mt-16 max-w-page lg:mt-24">
+          <ProjectVisual kind={project.visual} />
         </Container>
 
-        <Container className="py-24 lg:py-32">
-          <div className="flex items-center gap-6">
-            <Label>Case study</Label>
-            <span aria-hidden className="h-px flex-1 bg-line" />
-            <Label className="hidden sm:block">Problem → System → Engineering → Result</Label>
+        <Container className="max-w-page py-24 lg:py-32">
+          <div className="mx-auto flex max-w-[60rem] flex-col gap-14 lg:gap-16">
+            <FadeIn>
+              <Chapter name={t.common.problem}>
+                <p className={prose}>{project.problem}</p>
+              </Chapter>
+            </FadeIn>
+            <FadeIn>
+              <Chapter name={t.common.system}>
+                <p className={prose}>{project.system}</p>
+              </Chapter>
+            </FadeIn>
+            <FadeIn>
+              <Chapter name={t.common.engineering}>
+                <p className={prose}>{joinDot(project.engineering)}</p>
+              </Chapter>
+            </FadeIn>
+            <FadeIn>
+              <Chapter name={t.common.result}>
+                <p className={prose}>{project.result}</p>
+              </Chapter>
+            </FadeIn>
           </div>
-          <CaseStudyGrid project={project} className="mt-8" />
         </Container>
       </section>
 
       {project.pipeline ? (
-        <section data-theme="dark" className="surface-elevated border-y border-line" aria-label="System flow">
-          <Container className="pt-24 lg:pt-32">
-            <div className="flex items-center gap-5 sm:gap-8">
-              <FadeIn y={8} className="flex shrink-0 items-center gap-3">
-                <Label tone="fg">Flow</Label>
-                <Label>— How the system runs</Label>
-              </FadeIn>
-              <LineReveal className="flex-1" />
-            </div>
-            <RevealText
-              as="h2"
-              lines={["Seven stages,", "one workflow."]}
-              className="mt-8 text-display-lg uppercase lg:mt-12"
+        <section className="surface-alt border-y border-line" aria-labelledby="flow-title">
+          <Container className="max-w-page py-24 lg:py-32">
+            <SectionTitle
+              eyebrow={t.common.howItRuns}
+              id="flow-title"
+              lines={[
+                t.common.sevenStages,
+                <>
+                  <em>{t.common.oneWorkflow}</em>
+                </>,
+              ]}
+            />
+            <CaseStudyPipeline
+              stages={project.pipeline}
+              className="mx-auto mt-16 max-w-[60rem] lg:mt-20"
             />
           </Container>
-          <CaseStudyPipeline stages={project.pipeline} />
-          <div className="h-24 lg:h-0" />
         </section>
       ) : null}
 
-      {/* Next */}
-      <section data-theme="dark" className="surface-dark border-t border-line">
+      <section className="surface border-t border-line">
         <Link
-          href={nextHref}
-          onClick={go(nextHref, { label: next.title, index: next.index })}
-          data-cursor="label"
-          data-cursor-label="Next"
+          href={`/work/${next.slug}`}
           className="group block"
-          aria-label={`Next case study: ${next.title}`}
+          aria-label={`${t.common.nextCase}: ${nextLocal.title}`}
         >
-          <Container className="py-24 lg:py-32">
-            <FadeIn className="flex items-center gap-4">
-              <Label>Next case study</Label>
-              <Label tone="fg">{next.index}</Label>
+          <Container className="@container max-w-page py-24 text-center lg:py-32">
+            <p className="eyebrow text-muted">{t.common.nextCase}</p>
+            <FadeIn>
+              <h2 className="mt-6 text-display-xl lg:mt-8">{nextLocal.title}</h2>
+              <p className="mx-auto mt-4 max-w-[30rem] font-serif text-lg italic text-muted">
+                {nextLocal.category}
+              </p>
             </FadeIn>
-            <FadeIn delay={0.1} className="mt-8 flex items-end justify-between gap-6">
-              <h2 className="text-display-xl uppercase transition-transform duration-700 ease-out-expo group-hover:translate-x-4">
-                {next.title}
-              </h2>
-              <ArrowRight className="mb-[0.15em] hidden text-display-md text-muted transition-[transform,color] duration-700 ease-out-expo group-hover:translate-x-3 group-hover:text-fg sm:block" />
-            </FadeIn>
-            <FadeIn as="p" delay={0.15} className="mt-6 text-lede text-muted">
-              {next.category}
-            </FadeIn>
+            <p className="mt-8">
+              <span className="eyebrow link-underline text-fg">{t.common.readCase}</span>
+            </p>
           </Container>
         </Link>
       </section>

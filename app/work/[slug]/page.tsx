@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAdjacentProject, getProject, projects } from "@/data/projects";
 import { site } from "@/data/site";
+import { tgaiCopy } from "@/data/tgai";
 import { ProjectCaseStudy } from "@/components/projects/ProjectCaseStudy";
+import { TgaiCaseStudy } from "@/components/projects/TgaiCaseStudy";
 import { Footer } from "@/components/sections/Footer";
 
 export async function generateStaticParams() {
@@ -14,21 +16,23 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
   const project = getProject(slug);
   if (!project) return {};
 
+  const isTgai = slug === "tgai-profile";
+  const description = isTgai ? tgaiCopy.en.tagline : project.summary;
   const title = `${project.title} — ${project.category}`;
   return {
     title: project.title,
-    description: project.summary,
+    description,
     alternates: { canonical: `/work/${slug}` },
     openGraph: {
       type: "article",
       url: `${site.url}/work/${slug}`,
       title,
-      description: project.summary,
+      description,
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: project.summary,
+      description,
     },
   };
 }
@@ -38,10 +42,16 @@ export default async function ProjectPage({ params }: PageProps<"/work/[slug]">)
   const project = getProject(slug);
   if (!project) notFound();
 
+  const next = getAdjacentProject(slug);
+
   return (
     <>
       <main id="main" className="flex flex-1 flex-col">
-        <ProjectCaseStudy project={project} next={getAdjacentProject(slug)} />
+        {slug === "tgai-profile" ? (
+          <TgaiCaseStudy next={next} />
+        ) : (
+          <ProjectCaseStudy project={project} next={next} />
+        )}
       </main>
       <Footer />
     </>

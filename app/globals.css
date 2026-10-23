@@ -5,57 +5,39 @@
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* Monochrome scale */
-  --ink-950: #050505;
-  --ink-900: #0a0a0a;
-  --ink-800: #111111;
-  --ink-700: #1a1a1a;
-  --ink-600: #262626;
-  --ink-500: #3d3d3d;
-  --ink-400: #666666;
-  --ink-300: #a0a0a0;
-  --ink-200: #d4d4d4;
-  --ink-100: #f5f5f5;
-  --ink-0: #ffffff;
+  /* Cream paper palette */
+  --paper: #f6f2e9;
+  --paper-2: #efe9dc;
+  --paper-3: #e6dfcf;
+  --card: #fbf9f3;
+  --ink: #1d1c1a;
+  --ink-strong: #12110f;
 
-  /* Extremely restrained accent */
-  --accent: #6b8cff;
+  /* Navy: ~12:1 on paper — safe for text, used once per view */
+  --accent: #1f2d4d;
+  --accent-strong: #152038;
 
-  /* Semantic (dark default) */
-  --bg: var(--ink-950);
-  --bg-elevated: var(--ink-900);
-  --bg-surface: var(--ink-800);
-  --fg: var(--ink-100);
-  --fg-strong: var(--ink-0);
-  --muted: var(--ink-300);
-  --muted-2: var(--ink-400);
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(255, 255, 255, 0.24);
-  --grid-line: rgba(255, 255, 255, 0.035);
+  /* Semantic */
+  --bg: var(--paper);
+  --bg-elevated: var(--paper-2);
+  --bg-surface: var(--paper-3);
+  --fg: var(--ink);
+  --fg-strong: var(--ink-strong);
+  --muted: #57534c;
+  --muted-2: #6d685f;
+  --line: rgba(29, 28, 26, 0.12);
+  --line-strong: rgba(29, 28, 26, 0.24);
 
   /* Layout */
   --gutter: clamp(1.25rem, 4.5vw, 5rem);
   --nav-h: 4.5rem;
+  --measure: 38rem;
+  --page: 76rem;
 
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
-}
-
-/* Inverted (off-white) token set — variables only, safe on any element */
-.theme-light {
-  --bg: var(--ink-100);
-  --bg-elevated: #ececec;
-  --bg-surface: #e4e4e4;
-  --fg: var(--ink-950);
-  --fg-strong: #000000;
-  --muted: #5a5a5a;
-  --muted-2: #8a8a8a;
-  --line: rgba(0, 0, 0, 0.1);
-  --line-strong: rgba(0, 0, 0, 0.28);
-  --grid-line: rgba(0, 0, 0, 0.045);
-  color-scheme: light;
 }
 
 @theme inline {
@@ -65,21 +47,10 @@
   --color-black: #000000;
   --color-white: #ffffff;
 
-  --color-ink-950: var(--ink-950);
-  --color-ink-900: var(--ink-900);
-  --color-ink-800: var(--ink-800);
-  --color-ink-700: var(--ink-700);
-  --color-ink-600: var(--ink-600);
-  --color-ink-500: var(--ink-500);
-  --color-ink-400: var(--ink-400);
-  --color-ink-300: var(--ink-300);
-  --color-ink-200: var(--ink-200);
-  --color-ink-100: var(--ink-100);
-  --color-ink-0: var(--ink-0);
-
   --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);
   --color-bg-surface: var(--bg-surface);
+  --color-card: var(--card);
   --color-fg: var(--fg);
   --color-fg-strong: var(--fg-strong);
   --color-muted: var(--muted);
@@ -87,12 +58,18 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
 
+  --font-serif: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Never fall back to generic `cursive` — on Windows that is Comic Sans. */
+  --font-script: var(--font-italianno), "Snell Roundhand", var(--font-newsreader), serif;
 
   --spacing-gutter: var(--gutter);
   --spacing-nav: var(--nav-h);
+  --container-measure: var(--measure);
+  --container-page: var(--page);
 
   --ease-out-expo: var(--ease-out-expo);
   --ease-out-quart: var(--ease-out-quart);
@@ -108,10 +85,17 @@
 
 @layer base {
   html {
-    background: var(--ink-950);
-    color: var(--ink-100);
-    scroll-behavior: auto;
+    background: var(--bg);
+    color: var(--fg);
+    color-scheme: light;
+    scroll-padding-top: var(--nav-h);
     -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -126,23 +110,13 @@
   }
 
   ::selection {
-    background: var(--ink-100);
-    color: var(--ink-950);
-  }
-  .theme-light ::selection {
-    background: var(--ink-950);
-    color: var(--ink-100);
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    color: var(--fg-strong);
   }
 
   :focus-visible {
-    outline: 1px solid var(--fg);
+    outline: 1.5px solid var(--fg);
     outline-offset: 4px;
-  }
-
-  /* Hide native cursor only when the custom one is active */
-  html.has-custom-cursor,
-  html.has-custom-cursor * {
-    cursor: none !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -160,69 +134,106 @@
 /* Typography utilities                                                */
 /* ------------------------------------------------------------------ */
 
-/* Viewport-driven on desktop (7.4vw). On narrow screens the viewport term collapses, so the
-   container-query term takes over (capped at 2.75rem) and a ~15-character line never wraps.
-   Wrap usages in `@container` to activate the cqw term. */
+/* Display type is set in the serif. Viewport-driven on desktop; on narrow screens the
+   container-query term takes over. Wrap usages in `@container` to activate the cqw term. */
 @utility text-display-xl {
-  font-size: min(max(7.4vw, min(11.8cqw, 2.75rem)), 9rem);
-  line-height: 0.92;
-  letter-spacing: -0.045em;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: min(max(5.4vw, min(10cqw, 2.5rem)), 6.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: 400;
 }
 
-/* Hero headline: sized against its own column (container query units) so the
-   longest line always fits without wrapping. Parent needs `@container`. */
+/* Hero headline: sized against its own column (container query units). Parent needs `@container`. */
 @utility text-display-hero {
-  font-size: clamp(2.75rem, 13.2cqw, 9.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.045em;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(2.75rem, 10cqw, 6.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: 400;
 }
 
 @utility text-display-lg {
-  font-size: min(max(5.6vw, min(11cqw, 2.5rem)), 6.5rem);
-  line-height: 0.94;
-  letter-spacing: -0.04em;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: min(max(4.2vw, min(9cqw, 2.25rem)), 4.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+  font-weight: 400;
 }
 
 @utility text-display-md {
-  font-size: clamp(1.875rem, 3.8vw, 4.25rem);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-weight: 400;
 }
 
 @utility text-display-sm {
-  font-size: clamp(1.375rem, 2.2vw, 2.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.025em;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: clamp(1.375rem, 1.9vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-weight: 400;
 }
 
 @utility text-lede {
-  font-size: clamp(1.0625rem, 1.25vw, 1.375rem);
-  line-height: 1.5;
+  font-size: clamp(1.0625rem, 1.25vw, 1.3125rem);
+  line-height: 1.55;
   letter-spacing: -0.01em;
   font-weight: 400;
 }
 
 @utility label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1.2;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  letter-spacing: 0;
   font-weight: 500;
 }
 
 @utility label-sm {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  line-height: 1.2;
-  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+/* House-style overline: letterspaced small capitals. Section and chapter names only. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 500;
+}
+
+/* The name, set like a maison wordmark. */
+@utility wordmark {
+  font-family: var(--font-serif);
+  font-size: 0.9375rem;
+  line-height: 1;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Handwritten signature. A signing touch, never a heading or body text. Small x-height, so it
+   only reads at large sizes — nothing below 2.5rem. */
+@utility text-signature {
+  font-family: var(--font-script);
+  font-size: clamp(2.75rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+/* Smallest readable size — interface details inside project plates. Nothing goes below this. */
+@utility text-micro {
+  font-size: 0.6875rem;
+  line-height: 1.4;
 }
 
 @utility mono-num {
@@ -232,57 +243,18 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Surfaces & background system                                        */
+/* Surfaces                                                            */
 /* ------------------------------------------------------------------ */
 
-@utility bg-grid {
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 96px 96px;
-  background-position: center top;
-}
-
-@utility bg-hlines {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--grid-line) 0,
-    var(--grid-line) 1px,
-    transparent 1px,
-    transparent 8px
-  );
-}
-
-@utility bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
-
-/* Section surfaces: dark sections stay transparent so the fixed
-   background system shows through; light sections paint their own. */
-@utility surface-dark {
+/* Section surfaces: the page is paper; alternate sections sit one step darker. */
+@utility surface {
   position: relative;
-  z-index: 1;
-  background: transparent;
+  background: var(--bg);
 }
 
-@utility surface-elevated {
+@utility surface-alt {
   position: relative;
-  z-index: 1;
-  background: var(--ink-900);
-}
-
-/* Off-white section surface: pair with .theme-light */
-@utility surface-light {
-  position: relative;
-  z-index: 1;
-  background-color: var(--bg);
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 96px 96px;
-  background-position: center top;
-  color: var(--fg);
+  background: var(--bg-elevated);
 }
 
 /* Skip link */
@@ -292,13 +264,11 @@
   left: 1rem;
   z-index: 110;
   transform: translateY(-200%);
-  background: var(--ink-100);
-  color: var(--ink-950);
+  background: var(--fg);
+  color: var(--bg);
   padding: 0.75rem 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 500;
   transition: transform 0.3s var(--ease-out-expo);
 }
 .skip-link:focus-visible {
@@ -349,118 +319,17 @@
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Keyframes                                                           */
-/* ------------------------------------------------------------------ */
-
-@keyframes drift {
-  0% {
-    transform: translate3d(-8%, -6%, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(10%, 8%, 0) scale(1.15);
-  }
-  100% {
-    transform: translate3d(-8%, -6%, 0) scale(1);
-  }
-}
-
-@keyframes pulse-dot {
+/* Quiet pulse for the active TGAI approval step. Disabled by the global reduced-motion rule. */
+@keyframes soft-pulse {
   0%,
   100% {
     opacity: 1;
-    transform: scale(1);
   }
   50% {
-    opacity: 0.35;
-    transform: scale(0.85);
+    opacity: 0.7;
   }
 }
 
-@keyframes ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
-@keyframes dash-flow {
-  to {
-    stroke-dashoffset: -24;
-  }
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes scroll-hint {
-  0% {
-    transform: scaleY(0);
-    transform-origin: top;
-  }
-  45% {
-    transform: scaleY(1);
-    transform-origin: top;
-  }
-  55% {
-    transform: scaleY(1);
-    transform-origin: bottom;
-  }
-  100% {
-    transform: scaleY(0);
-    transform-origin: bottom;
-  }
-}
-
-@keyframes scan {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(400%);
-  }
-}
-
-@utility animate-drift {
-  animation: drift 38s ease-in-out infinite;
-}
-@utility animate-pulse-dot {
-  animation: pulse-dot 2.4s ease-in-out infinite;
-}
-@utility animate-ring {
-  animation: ring 2.4s var(--ease-out-quart) infinite;
-}
-@utility animate-dash-flow {
-  animation: dash-flow 2.4s linear infinite;
-}
-@utility animate-marquee {
-  animation: marquee 40s linear infinite;
-}
-@utility animate-scroll-hint {
-  animation: scroll-hint 2.6s var(--ease-in-out-quart) infinite;
-}
-@utility animate-scan {
-  animation: scan 6s var(--ease-in-out-quart) infinite;
-}
-
-/* Lenis */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis:not(.lenis-autoToggle).lenis-stopped {
-  overflow: clip;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+@utility animate-soft-pulse {
+  animation: soft-pulse 2.2s var(--ease-in-out-quart) infinite;
 }

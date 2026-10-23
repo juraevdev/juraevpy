@@ -5,43 +5,52 @@ type VisualFrameProps = {
   meta?: string;
   children: React.ReactNode;
   className?: string;
-  /** aspect ratio; `wide` is 4/3 on small screens and 21/9 from `lg` (case-study heroes) */
+  /** Square on phones so the plates never crowd; `lookbook` opens to 16/10, `wide` to 21/9 from `lg`. */
   ratio?: VisualRatio;
+  /** Decorative plates hide from AT; interactive demos must leave this false. */
+  decorative?: boolean;
 };
 
-export type VisualRatio = "4/3" | "16/9" | "21/9" | "wide";
+export type VisualRatio = "4/3" | "lookbook" | "wide" | "auto";
 
 const ratios: Record<VisualRatio, string> = {
-  "4/3": "aspect-[4/3]",
-  "16/9": "aspect-[16/9]",
-  "21/9": "aspect-[21/9]",
-  wide: "aspect-[4/3] lg:aspect-[21/9]",
+  "4/3": "aspect-square sm:aspect-[4/3]",
+  lookbook: "aspect-square sm:aspect-[4/3] lg:aspect-[16/10]",
+  wide: "aspect-square sm:aspect-[4/3] lg:aspect-[21/9]",
+  /** Height follows content — used by the compact TGAI interactive demo. */
+  auto: "",
 };
 
-/**
- * Shared chrome for the abstract interface mockups.
- * Always dark (ink-900) regardless of section theme so the visuals read as artefacts.
- */
-export function VisualFrame({ title, meta, children, className, ratio = "4/3" }: VisualFrameProps) {
+/** Shared chrome for the project plates: a quiet card with a title bar. */
+export function VisualFrame({
+  title,
+  meta,
+  children,
+  className,
+  ratio = "4/3",
+  decorative = true,
+}: VisualFrameProps) {
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-[2px] border border-white/10 bg-[#0a0a0a] text-[#f5f5f5] select-none",
+        "relative flex w-full flex-col overflow-hidden rounded-xl border border-line bg-card text-fg",
+        decorative && "select-none",
         ratios[ratio],
         className,
       )}
-      aria-hidden
+      aria-hidden={decorative || undefined}
     >
-      <div className="absolute inset-0 bg-hlines opacity-40" />
-      <div className="relative flex h-full flex-col">
-        <div className="flex h-8 shrink-0 items-center justify-between border-b border-white/10 px-3 font-mono text-[9px] uppercase tracking-[0.14em] text-[#666]">
-          <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full border border-[#666]" />
-            {title}
-          </span>
-          {meta ? <span>{meta}</span> : null}
-        </div>
-        <div className="relative min-h-0 flex-1 @container">{children}</div>
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-line px-4 text-micro text-muted">
+        <span>{title}</span>
+        {meta ? <span className="text-muted">{meta}</span> : null}
+      </div>
+      <div
+        className={cn(
+          "relative @container",
+          ratio === "auto" ? "flex-none" : "min-h-0 flex-1",
+        )}
+      >
+        {children}
       </div>
     </div>
   );
@@ -50,9 +59,6 @@ export function VisualFrame({ title, meta, children, className, ratio = "4/3" }:
 /** Text placeholder bar. */
 export function Bar({ w, className }: { w: string; className?: string }) {
   return (
-    <span
-      className={cn("block h-[3px] rounded-full bg-white/15", className)}
-      style={{ width: w }}
-    />
+    <span className={cn("block h-1 rounded-full bg-fg/10", className)} style={{ width: w }} />
   );
 }

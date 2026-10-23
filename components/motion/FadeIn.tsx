@@ -33,7 +33,7 @@ export function FadeIn({
   children,
   delay = 0,
   duration = DURATION.base,
-  y = 20,
+  y = 12,
   trigger = "view",
   once = true,
   ...rest

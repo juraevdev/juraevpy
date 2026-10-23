@@ -1,16 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Italianno, Newsreader } from "next/font/google";
 import "./globals.css";
 import { site } from "@/data/site";
 import { MotionProvider } from "@/components/MotionProvider";
-import { SmoothScroll } from "@/components/SmoothScroll";
-import { PageTransitionProvider } from "@/components/PageTransition";
-import { BackgroundSystem } from "@/components/BackgroundSystem";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { NoiseOverlay } from "@/components/NoiseOverlay";
-import { CustomCursor } from "@/components/CustomCursor";
 import { Navbar } from "@/components/navigation/Navbar";
 import { JsonLd } from "@/components/seo/JsonLd";
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +24,15 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+});
+
+/* Signature only, always below the fold — not preloaded so it never competes with the hero. */
+const italianno = Italianno({
+  variable: "--font-italianno",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 const title = `${site.name} — ${site.role}`;
@@ -65,31 +76,23 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#050505",
-  colorScheme: "dark",
+  themeColor: "#f6f2e9",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${geistSans.variable} ${geistMono.variable} ${italianno.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <MotionProvider>
-          <SmoothScroll>
-            <PageTransitionProvider>
-              <a href="#main" className="skip-link">
-                Skip to content
-              </a>
-              <BackgroundSystem />
-              <ScrollProgress />
-              <Navbar />
-              {children}
-              <NoiseOverlay />
-              <CustomCursor />
-            </PageTransitionProvider>
-          </SmoothScroll>
+          <a href="#main" className="skip-link">
+            Skip to content
+          </a>
+          <Navbar />
+          {children}
         </MotionProvider>
         <JsonLd />
       </body>

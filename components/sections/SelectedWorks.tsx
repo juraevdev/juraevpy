@@ -1,69 +1,49 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { projects } from "@/data/projects";
-import { pad } from "@/lib/utils";
-import { EASE_OUT_EXPO } from "@/lib/motion";
+import { useLocale } from "@/hooks/useLocale";
 import { Container } from "@/components/ui/Container";
-import { Label } from "@/components/ui/Label";
 import { SectionTitle } from "@/components/ui/SectionTitle";
-import { ProjectRow } from "@/components/projects/ProjectRow";
+import { ProjectEntry } from "@/components/projects/ProjectEntry";
+import { TgaiEntry } from "@/components/projects/TgaiEntry";
+import { CaravanEntry } from "@/components/projects/CaravanEntry";
+import { EmakonEntry } from "@/components/projects/EmakonEntry";
+import { SuperAppEntry } from "@/components/projects/SuperAppEntry";
 
 export function SelectedWorks() {
-  const [current, setCurrent] = useState(0);
-  const onEnter = useCallback((i: number) => setCurrent(i), []);
+  const { t } = useLocale();
 
   return (
-    <section id="work" data-theme="dark" className="surface-dark" aria-labelledby="work-title">
-      <Container className="py-28 lg:py-40">
+    <section id="work" className="surface-alt" aria-labelledby="work-title">
+      <Container className="max-w-page py-28 lg:py-40">
         <SectionTitle
-          index="02"
-          label="Selected work"
+          eyebrow={t.work.eyebrow}
           id="work-title"
-          lines={["Selected", "work."]}
-          meta={<Label>{projects.length} case studies · 2024 — 2026</Label>}
-          as="h2"
+          lines={[
+            t.work.titleLine1,
+            <>
+              {t.work.titleLine2Before}
+              <em>{t.work.titleLine2Em}</em>
+            </>,
+          ]}
         />
 
-        <div className="relative mt-20 lg:mt-28">
-          {/* Sticky index in the left gutter (decorative) */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 hidden xl:block"
-            style={{ left: "calc(var(--gutter) * -1 + var(--gutter) / 2)" }}
-          >
-            <div className="sticky top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="flex items-center gap-3 bg-bg px-2 py-3 label text-muted [writing-mode:vertical-rl]">
-                <span className="relative block h-[1.1em] w-[2ch] overflow-hidden text-fg">
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.span
-                      key={current}
-                      className="absolute inset-0"
-                      initial={{ x: "100%", opacity: 0 }}
-                      animate={{ x: "0%", opacity: 1 }}
-                      exit={{ x: "-100%", opacity: 0 }}
-                      transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
-                    >
-                      {pad(current + 1)}
-                    </motion.span>
-                  </AnimatePresence>
-                </span>
-                <span>/ {pad(projects.length)}</span>
-              </div>
-            </div>
-          </div>
-
-          {projects.map((project, i) => (
-            <ProjectRow
-              key={project.slug}
-              project={project}
-              flip={i % 2 === 1}
-              position={i}
-              onEnter={onEnter}
-            />
-          ))}
-          <div className="border-t border-line" />
+        <div className="mt-20 flex flex-col gap-28 lg:mt-28 lg:gap-40">
+          {projects.map((project, i) => {
+            const n = i + 1;
+            switch (project.slug) {
+              case "tgai-profile":
+                return <TgaiEntry key={project.slug} number={n} />;
+              case "caravan-dispatcher":
+                return <CaravanEntry key={project.slug} number={n} />;
+              case "e-makon":
+                return <EmakonEntry key={project.slug} number={n} />;
+              case "ai-super-app":
+                return <SuperAppEntry key={project.slug} number={n} />;
+              default:
+                return <ProjectEntry key={project.slug} project={project} number={n} />;
+            }
+          })}
         </div>
       </Container>
     </section>

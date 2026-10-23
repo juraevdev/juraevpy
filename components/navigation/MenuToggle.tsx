@@ -16,7 +16,7 @@ export function MenuToggle({ open, onToggle }: MenuToggleProps) {
       aria-expanded={open}
       aria-controls="mobile-menu"
       aria-label={open ? "Close menu" : "Open menu"}
-      className="relative -mr-2 flex h-10 w-10 items-center justify-center text-fg md:hidden"
+      className="relative -mr-2 flex h-11 w-11 items-center justify-center text-fg md:hidden"
     >
       <span
         className={cn(

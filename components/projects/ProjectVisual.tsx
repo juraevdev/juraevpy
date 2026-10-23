@@ -1,7 +1,4 @@
-"use client";
-
 import type { ProjectVisualKey } from "@/data/projects";
-import { TgaiVisual } from "./visuals/TgaiVisual";
 import { CaravanVisual } from "./visuals/CaravanVisual";
 import { EmakonVisual } from "./visuals/EmakonVisual";
 import { SuperAppVisual } from "./visuals/SuperAppVisual";
@@ -12,16 +9,21 @@ type ProjectVisualProps = {
   ratio?: VisualRatio;
 };
 
-/** Maps a project to its abstract interface mockup. */
-export function ProjectVisual({ kind, ratio }: ProjectVisualProps) {
+/**
+ * Case-study plates. Homepage entries use dedicated *Entry components.
+ * Compact plates use `auto` height so content is not lost in empty aspect boxes.
+ */
+export function ProjectVisual({ kind }: ProjectVisualProps) {
   switch (kind) {
     case "tgai":
-      return <TgaiVisual ratio={ratio} />;
+      return null;
     case "caravan":
-      return <CaravanVisual ratio={ratio} />;
+      return <CaravanVisual ratio="auto" />;
     case "emakon":
-      return <EmakonVisual ratio={ratio} />;
+      return <EmakonVisual ratio="auto" />;
     case "superapp":
-      return <SuperAppVisual ratio={ratio} />;
+      return <SuperAppVisual ratio="auto" />;
+    default:
+      return null;
   }
 }

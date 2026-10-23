@@ -14,61 +14,46 @@ export default function OpenGraphImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
           justifyContent: "space-between",
           padding: 72,
-          background: "#050505",
-          color: "#f5f5f5",
-          fontFamily: "sans-serif",
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)",
-          backgroundSize: "96px 96px",
+          background: "#f6f2e9",
+          color: "#1d1c1a",
+          fontFamily: "serif",
+          textAlign: "center",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 20,
-            letterSpacing: 4,
-            textTransform: "uppercase",
-            color: "#a0a0a0",
-          }}
-        >
-          <span>{site.name}</span>
-          <span>{site.role}</span>
+        <div style={{ display: "flex", fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+          {site.name}
         </div>
 
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            fontSize: 108,
-            lineHeight: 0.95,
-            letterSpacing: -5,
-            fontWeight: 600,
-            textTransform: "uppercase",
+            alignItems: "center",
+            fontSize: 92,
+            lineHeight: 1.05,
+            letterSpacing: -2,
           }}
         >
-          <span>Building software</span>
-          <span>that solves real</span>
-          <span>business problems.</span>
+          <span>Backend systems,</span>
+          <span style={{ display: "flex", gap: 22 }}>
+            made to <span style={{ color: "#1f2d4d", fontStyle: "italic" }}>measure.</span>
+          </span>
         </div>
 
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: "1px solid rgba(255,255,255,0.18)",
-            paddingTop: 28,
             fontSize: 20,
             letterSpacing: 4,
             textTransform: "uppercase",
-            color: "#a0a0a0",
+            color: "#57534c",
+            fontFamily: "sans-serif",
           }}
         >
-          <span>{site.focus.join("  ·  ")}</span>
-          <span style={{ color: "#f5f5f5" }}>{site.url.replace(/^https?:\/\//, "")}</span>
+          {site.role} · {site.city}
         </div>
       </div>
     ),
