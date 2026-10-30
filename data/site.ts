@@ -1,6 +1,5 @@
 /**
  * Single source of truth for personal/brand data.
- * NOTE: url, email and social handles are placeholders — replace with real values.
  */
 export const site = {
   name: "Davlat Juraev",
@@ -12,7 +11,7 @@ export const site = {
   description:
     "Python Backend Developer building AI-powered automation, scalable backend systems and software that solves real business problems.",
   url: "https://juraevpy.com",
-  email: "hello@juraevpy.com",
+  email: "juraevdevpy@gmail.com",
   focus: ["Django", "FastAPI", "AI", "Automation", "Business Systems"],
   /** Time zone shown in the availability line. */
   timezone: "Asia/Tashkent",
@@ -22,26 +21,26 @@ export const site = {
     {
       id: "email",
       label: "Email",
-      handle: "hello@juraevpy.com",
-      href: "mailto:hello@juraevpy.com",
+      handle: "juraevdevpy@gmail.com",
+      href: "mailto:juraevdevpy@gmail.com",
     },
     {
       id: "linkedin",
       label: "LinkedIn",
-      handle: "/in/davlatjuraev",
-      href: "https://www.linkedin.com/in/davlatjuraev",
+      handle: "/in/juraevdev",
+      href: "https://www.linkedin.com/in/juraevdev",
     },
     {
       id: "github",
       label: "GitHub",
-      handle: "@davlatjuraev",
-      href: "https://github.com/davlatjuraev",
+      handle: "@juraevdev",
+      href: "https://github.com/juraevdev",
     },
     {
       id: "telegram",
       label: "Telegram",
-      handle: "@davlatjuraev",
-      href: "https://t.me/davlatjuraev",
+      handle: "@juraevpy",
+      href: "https://t.me/juraevpy",
     },
   ],
 } as const;
